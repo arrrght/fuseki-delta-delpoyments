@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fuseki-patchlog
+spec:
+  template:
+    spec:
+      containers:
+      - name: patchlog
+        image: gitlab.trinidata.ru:5005/libraries/rdf-delta:bbb
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: fuseki-patchlog-env
+        ports:
+        - containerPort: 1066
+        volumeMounts:
+          - { mountPath: /app/run.sh, subPath: run.sh, name: run-sh }
+          - { mountPath: /app/log4j2.xml, subPath: log4j2.xml, name: log4j }
+          - { mountPath: /app/s3.ini, subPath: s3.ini, name: s3ini }
+      restartPolicy: Always
+      volumes:
+      - name: run-sh
+        configMap: { name: run-sh, defaultMode: 0777 }
+      - name: log4j
+        configMap: { name: log4j }
+      - name: s3ini
+        configMap: { name: s3ini }

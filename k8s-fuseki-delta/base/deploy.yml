@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fuseki-delta
+spec:
+  template:
+    spec:
+      containers:
+      - name: json-exporter
+        image: gitlab.trinidata.ru:5005/libraries/prometheus-json-exporter:fuseki
+        ports:
+          - containerPort: 9116
+      - name: rdf-delta
+        image: gitlab.trinidata.ru:5005/libraries/rdf-delta:bbb
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: fuseki-delta-env
+        ports:
+        - containerPort: 3030
+        volumeMounts:
+          - { mountPath: /app/run.sh, subPath: run.sh, name: run-sh }
+          - { mountPath: /app/log4j2.xml, subPath: log4j2.xml, name: log4j }
+          - { mountPath: /app/conf.ttl, subPath: conf.ttl, name: conf-ttl }
+          - { mountPath: /app/data, name: data }
+      restartPolicy: Always
+      volumes:
+      - name: run-sh
+        configMap: { name: run-sh, defaultMode: 0777 }
+      - name: log4j
+        configMap: { name: log4j }
+      - name: conf-ttl
+        configMap: { name: conf-ttl }
+      - name: data
+        emptyDir: {}

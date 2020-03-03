@@ -1,0 +1,18 @@
+image: docker:dind
+
+stages:
+  - build
+  - deploy
+
+build:
+  services: 
+    - docker:dind
+  stage: build
+  tags: [ luk ]
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  after_script:
+    - docker logout $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_REF_NAME}

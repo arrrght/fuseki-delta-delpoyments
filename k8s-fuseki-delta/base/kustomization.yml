@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: trinidata
+commonLabels:
+  app: fuseki-delta
+configMapGenerator:
+  - name: fuseki-delta-env
+    env:  env.env
+  - name: run-sh
+    files: [ run.sh ]
+  - name: log4j
+    files: [ log4j2.xml ]
+  - name: conf-ttl
+    files: [ conf.ttl ]
+resources:
+  - deploy.yml
+  - svc.yml
